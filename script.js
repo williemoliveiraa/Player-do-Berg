@@ -5,6 +5,7 @@ const cover = document.getElementById('cover');
 const play = document.getElementById('play');
 const next = document.getElementById('next');
 const previous = document.getElementById('previous');
+const likeButton = document.getElementById('like');
 const currentProgress = document.getElementById('current-progress');
 const progressContainer = document.getElementById('progress-container');
 const shuffleButton = document.getElementById('shuffle');
@@ -16,24 +17,27 @@ const Rising = {
     songName: 'Rising',
     artist: 'Triple S',
     file: 'Rising',
-    filetwo: 'Rising'
+    filetwo: 'Rising',
+    liked: false
 };
 const AP = {
     songName: 'AP',
     artist: 'Pope Smoke',
     file: 'AP',
-    filetwo: 'AP'
+    filetwo: 'AP',
+    liked: false
 };
 const Brutal = {
     songName: 'Brutal',
     artist: 'Olivia Rodrigo',
     file: 'brutal',
-    filetwo: 'Brutal'
+    filetwo: 'Brutal',
+    liked: false
 };
 let isPlaying = false;
 let isShuffled = false;
 let repeatOn = false;
-const originalPlaylist = [Rising, AP, Brutal];
+const originalPlaylist = JSON.parse(localStorage.getItem('playlist')) ?? [Rising, AP, Brutal];
 let sortedPlaylist = [...originalPlaylist];
 let index = 0;
 
@@ -60,11 +64,25 @@ function playPauseDecider(){
     }
 }
 
+function likeButtonRender(){
+    if (sortedPlaylist[index].liked === true){
+        likeButton.querySelector('.bi').classList.remove('bi-heart');
+        likeButton.querySelector('.bi').classList.add('bi-heart-fill');
+        likeButton.classList.add('button-active');
+    }
+    else{
+        likeButton.querySelector('.bi').classList.add('bi-heart');
+        likeButton.querySelector('.bi').classList.remove('bi-heart-fill');
+        likeButton.classList.remove('button-active');
+    }
+}
+
 function initializeSong(){
     cover.src = `images/${sortedPlaylist[index].filetwo}.jpg`;
     song.src = `songs/${sortedPlaylist[index].file}.mp3`;
     songName.innerText = sortedPlaylist[index].songName;
     bandName.innerText = sortedPlaylist[index].artist;
+    likeButtonRender();
 }
 
 function previousSong(){
@@ -160,6 +178,17 @@ function updateTotalTime(){
     totalTime.innerText = toHHMMSS(song.duration);
 }
 
+function likeButtonClicked(){
+    if(sortedPlaylist[index].liked === false){
+        sortedPlaylist[index].liked = true;
+    }
+    else{
+        sortedPlaylist[index].liked = false;
+    }
+    likeButtonRender();
+    localStorage.setItem ('playlist', JSON.stringify(originalPlaylist));
+}
+
 initializeSong();
 
 play.addEventListener('click', playPauseDecider);
@@ -171,3 +200,4 @@ song.addEventListener('loadedmetadata', updateTotalTime);
 progressContainer.addEventListener('click', jumpTo);
 shuffleButton.addEventListener('click', shuffleButtonClicked);
 repeatButton.addEventListener('click', repeatButtonClicked);
+likeButton.addEventListener('click', likeButtonClicked);
